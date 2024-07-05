@@ -1,5 +1,3 @@
-// ===================== REGISTER A NEW USER
-// POST : api/users/register
 const User = require("../models/userModel");
 const HttpError = require("../models/errorModel");
 const bcrypt = require("bcryptjs");
@@ -8,6 +6,8 @@ const fs = require("fs");
 const path = require("path");
 const { v4: uuid } = require("uuid");
 
+// ===================== REGISTER A NEW USER
+// POST : api/users/register
 // UNPROTECTED
 const registerUser = async (req, res, next) => {
   try {
