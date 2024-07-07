@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
 const { v4: uuid } = require("uuid");
+const cloudinary = require("../cloudinary");
 
 // ===================== REGISTER A NEW USER
 // POST : api/users/register
@@ -121,19 +122,12 @@ const changeAvatar = async (req, res, next) => {
     if (!req.files.avatar) {
       return next(new HttpError("Please upload an image.", 422));
     }
-
+    // console.log(req.user.id);
     const user = await User.findById(req.user.id);
+    // console.log(user);
 
     if (!user) {
       return next(new HttpError("User not found.", 404));
-    }
-
-    if (user.avatar) {
-      fs.unlink(path.join(__dirname, "..", "uploads", user.avatar), (err) => {
-        if (err) {
-          return next(new HttpError("User avatar change failed.", 422));
-        }
-      });
     }
 
     const { avatar } = req.files;
@@ -143,25 +137,17 @@ const changeAvatar = async (req, res, next) => {
       );
     }
 
-    let fileName;
-    fileName = avatar.name;
-    let splittedFilename = fileName.split(".");
-    let newFileName =
-      splittedFilename[0] +
-      uuid() +
-      "." +
-      splittedFilename[splittedFilename.length - 1];
+    const imageResult = await cloudinary.uploader.upload(
+      req.files["avatar"][0].path
+    );
+    // console.log(imageResult.url);
 
-    avatar.mv(path.join(__dirname, "..", "uploads", newFileName), (err) => {
-      if (err) {
-        return next(new HttpError("User avatar change failed.", 422));
-      }
-      user.avatar = newFileName;
-      user.save();
-      res.status(200).json({
-        status: "success",
-        user,
-      });
+    user.avatar = imageResult.url;
+    await user.save();
+
+    res.status(200).json({
+      status: "success",
+      user,
     });
   } catch (error) {
     return next(new HttpError("User avatar change failed.", 422));

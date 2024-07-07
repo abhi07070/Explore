@@ -28,6 +28,7 @@ const createPost = async (req, res, next) => {
     }
 
     const fileName = uuid() + path.extname(thumbnail.name);
+    console.log("halfway");
 
     thumbnail.mv(
       path.join(__dirname, "..", "uploads", fileName),
@@ -46,7 +47,7 @@ const createPost = async (req, res, next) => {
           if (!savedPost) {
             return next(new HttpError("Post could not be created.", 422));
           }
-
+          console.log("hello");
           const currentUser = await User.findById(req.user.id);
           currentUser.posts += 1;
           await currentUser.save();

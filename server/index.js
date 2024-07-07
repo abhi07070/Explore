@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config();
-const upload = require("express-fileupload");
+// const upload = require("express-fileupload");
 
 const userRoutes = require("./routes/userRoutes");
 const postRoutes = require("./routes/postRoutes");
@@ -19,8 +19,8 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 // app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
-app.use(upload());
-app.use("/uploads", express.static(__dirname + "/uploads"));
+// app.use(upload());
+// app.use("/uploads", express.static(__dirname + "/uploads"));
 
 //@Database Connection
 const mongoDBURL = process.env.MONGODB_URL;
