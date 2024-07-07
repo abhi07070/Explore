@@ -1,12 +1,27 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { UserContext } from "../context/userContext.js";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const CreatePost = () => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Uncategorized");
   const [description, setDescription] = useState("");
   const [thumbnail, setThumbnail] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const { currentUser } = useContext(UserContext);
+  const token = currentUser?.token;
+
+  // redirect to login page if user is not logged in
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, []);
 
   const modules = {
     toolbar: [
@@ -39,7 +54,7 @@ const CreatePost = () => {
 
   const POST_CATEGORIES = [
     "Uncategorized",
-    "Bussiness",
+    "Business",
     "Education",
     "Entertainment",
     "Health",
@@ -53,12 +68,41 @@ const CreatePost = () => {
     "Tech",
   ];
 
+  const createPost = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("category", category);
+    formData.append("thumbnail", thumbnail);
+    // formData.append("userId", currentUser._id);
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/posts`,
+        formData,
+        { withCredentials: true, headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.status == 201) {
+        navigate("/");
+        setTitle("");
+        setCategory("Uncategorized");
+        setDescription("");
+        setThumbnail("");
+        setError("");
+      }
+    } catch (error) {
+      setError(error.response.data.message);
+    }
+  };
+
   return (
     <section className="create-post">
       <div className="container">
         <h2>Create Post</h2>
-        <div className="form__error-message">This is an error message</div>
-        <form className="form create-post__form">
+        {error && <div className="form__error-message">{error}</div>}
+        <form className="form create-post__form" onSubmit={createPost}>
           <input
             type="text"
             placeholder="Title"

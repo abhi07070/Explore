@@ -1,45 +1,44 @@
-import React, { useState } from "react";
-
-import Avatar1 from "../assets/avatar1.jpg";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Profile from "../Images/profile.png";
 
-const authorsData = [
-  {
-    id: 1,
-    avatar: Avatar1,
-    name: "John Doe",
-    posts: 3,
-  },
-  {
-    id: 2,
-    avatar: Avatar1,
-    name: "John Doe",
-    posts: 3,
-  },
-  {
-    id: 3,
-    avatar: Avatar1,
-    name: "John Doe",
-    posts: 3,
-  },
-  {
-    id: 4,
-    avatar: Avatar1,
-    name: "John Doe",
-    posts: 3,
-  },
-];
 const Authors = () => {
-  const [authors, setAuthors] = useState(authorsData);
+  const [authors, setAuthors] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/users`
+        );
+        // console.log(response);
+        setAuthors(response?.data.users || []);
+      } catch (error) {}
+      setIsLoading(false);
+    };
+    fetchAuthors();
+  }, []);
+
+  if (isLoading) {
+    return <h2 className="center">Loading...</h2>;
+  }
+
   return (
     <section className="authors">
       {authors.length > 0 ? (
         <div className="container authors__container">
-          {authors.map(({ id, avatar, name, posts }) => {
+          {authors.map(({ _id: id, avatar, name, posts }) => {
+            const avatarUrl = avatar
+              ? `${process.env.REACT_APP_ASSETS_URL}/uploads/${avatar}`
+              : Profile;
+
             return (
               <Link key={id} to={`/posts/users/${id}`} className="author">
                 <div className="author__avatar">
-                  <img src={avatar} alt={`Image of ${name}`} />
+                  <img src={avatarUrl} alt={`Image of ${name}`} />
                 </div>
                 <div className="author__info">
                   <h4>{name}</h4>

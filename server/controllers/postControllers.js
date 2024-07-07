@@ -169,7 +169,7 @@ const editPost = async (req, res, next) => {
 
     const oldPost = await Post.findById(postId);
 
-    if (req.user.id !== oldPost.creator) {
+    if (req.user.id !== oldPost.creator.toString()) {
       return next(
         new HttpError("You are not authorized to edit this post.", 401)
       );
@@ -254,7 +254,7 @@ const deletePost = async (req, res, next) => {
       return next(new HttpError("Post not found.", 404));
     }
 
-    if (req.user.id !== post.creator) {
+    if (req.user.id !== post.creator.toString()) {
       return next(
         new HttpError("You are not authorized to delete this post.", 401)
       );

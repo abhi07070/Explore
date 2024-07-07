@@ -1,12 +1,28 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { useNavigate, useParams } from "react-router-dom";
+import { UserContext } from "../context/userContext";
+import axios from "axios";
 
 const EditPost = () => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Uncategorized");
   const [description, setDescription] = useState("");
+  const [error, setError] = useState("");
   const [thumbnail, setThumbnail] = useState("");
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  const { currentUser } = useContext(UserContext);
+  const token = currentUser?.token;
+
+  // redirect to login page if user is not logged in
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, []);
 
   const modules = {
     toolbar: [
@@ -39,7 +55,7 @@ const EditPost = () => {
 
   const POST_CATEGORIES = [
     "Uncategorized",
-    "Bussiness",
+    "Business",
     "Education",
     "Entertainment",
     "Health",
@@ -53,12 +69,47 @@ const EditPost = () => {
     "Tech",
   ];
 
+  useEffect(() => {
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/posts/${id}`)
+      .then(({ data }) => {
+        // console.log(data);
+        const { title, description, category } = data.post;
+        setTitle(title);
+        setCategory(category);
+        setDescription(description);
+      })
+      .catch((err) => {
+        // setError(err.response.data.message);
+      });
+  }, [id]);
+
+  const editPost = (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("category", category);
+    formData.append("thumbnail", thumbnail);
+    axios
+      .patch(`${process.env.REACT_APP_BASE_URL}/posts/${id}`, formData, {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(() => {
+        navigate("/");
+      })
+      .catch((err) => {
+        setError(err.response.data.message);
+      });
+  };
+
   return (
     <section className="create-post">
       <div className="container">
         <h2>Edit Post</h2>
-        <div className="form__error-message">This is an error message</div>
-        <form className="form create-post__form">
+        {error && <div className="form__error-message">{error}</div>}
+        <form className="form create-post__form" onSubmit={editPost}>
           <input
             type="text"
             placeholder="Title"
