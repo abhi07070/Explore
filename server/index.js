@@ -17,8 +17,8 @@ const corsOptions = {
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders: "Content-Type, Authorization",
 };
-
 app.use(cors(corsOptions));
+// app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
 app.use(upload());
 app.use("/uploads", express.static(__dirname + "/uploads"));
 

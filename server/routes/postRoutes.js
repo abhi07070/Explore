@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const {
-  createrPost,
+  createPost,
   getPosts,
   getPost,
   getCategoryPosts,
@@ -12,7 +12,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 const router = Router();
 
-router.post("/", authMiddleware, createrPost);
+router.post("/", authMiddleware, createPost);
 router.get("/", getPosts);
 router.get("/:id", getPost);
 router.get("/categories/:category", getCategoryPosts);

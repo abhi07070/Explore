@@ -8,54 +8,48 @@ const HttpError = require("../models/errorModel");
 // =====================    CREATE A NEW POST
 // POST : api/posts/
 // PROTECTED
-const createrPost = async (req, res, next) => {
+const createPost = async (req, res, next) => {
   try {
     const { title, category, description } = req.body;
     if (!title || !category || !description) {
       return next(new HttpError("Fill in all fields.", 422));
     }
 
-    const { thumbnail } = req.files;
+    const thumbnail = req.files?.thumbnail;
+
+    if (!thumbnail) {
+      return next(new HttpError("Thumbnail is required.", 422));
+    }
 
     if (thumbnail.size > 2000000) {
       return next(
-        new HttpError("File size too large. Must be less than 2mb", 422)
+        new HttpError("File size too large. Must be less than 2mb.", 422)
       );
     }
 
-    let fileName;
-    fileName = thumbnail.name;
-    let splittedFilename = fileName.split(".");
-    let newFileName =
-      splittedFilename[0] +
-      uuid() +
-      "." +
-      splittedFilename[splittedFilename.length - 1];
+    const fileName = uuid() + path.extname(thumbnail.name);
 
     thumbnail.mv(
-      path.join(__dirname, "..", "uploads", newFileName),
+      path.join(__dirname, "..", "uploads", fileName),
       async (err) => {
         if (err) {
           return next(new HttpError("Post creation failed.", 422));
         } else {
-          const newPost = await Post.create({
+          const newPost = new Post({
             title,
             category,
             description,
-            thumbnail: newFileName,
+            thumbnail: fileName,
             creator: req.user.id,
           });
-          if (!newPost) {
+          const savedPost = await newPost.save();
+          if (!savedPost) {
             return next(new HttpError("Post could not be created.", 422));
           }
 
           const currentUser = await User.findById(req.user.id);
-          const userPostCount = currentUser.posts + 1;
-          await User.findByIdAndUpdate(
-            req.user.id,
-            { posts: userPostCount },
-            { new: true }
-          );
+          currentUser.posts += 1;
+          await currentUser.save();
 
           res.status(201).json({
             status: "success",
@@ -65,12 +59,6 @@ const createrPost = async (req, res, next) => {
         }
       }
     );
-
-    // res.status(201).json({
-    //   status: "success",
-    //   newPost,
-    //   message: `New post ${newPost.title} created.`,
-    // });
   } catch (error) {
     return next(new HttpError("Post creation failed.", 422));
   }
@@ -284,7 +272,7 @@ const deletePost = async (req, res, next) => {
 };
 
 module.exports = {
-  createrPost,
+  createPost,
   getPosts,
   getPost,
   getCategoryPosts,
