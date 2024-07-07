@@ -11,14 +11,14 @@ const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const app = express();
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
-const corsOptions = {
-  origin: process.env.CLIENT_URL,
-  credentials: true,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  allowedHeaders: "Content-Type, Authorization",
-};
-app.use(cors(corsOptions));
-// app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
+// const corsOptions = {
+//   origin: process.env.CLIENT_URL,
+//   credentials: true,
+//   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//   allowedHeaders: "Content-Type, Authorization",
+// };
+// app.use(cors(corsOptions));
+app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
 // app.use(upload());
 // app.use("/uploads", express.static(__dirname + "/uploads"));
 

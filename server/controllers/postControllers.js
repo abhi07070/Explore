@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const { v4: uuid } = require("uuid");
 const HttpError = require("../models/errorModel");
+const cloudinary = require("../cloudinary");
 
 // =====================    CREATE A NEW POST
 // POST : api/posts/
@@ -27,39 +28,30 @@ const createPost = async (req, res, next) => {
       );
     }
 
-    const fileName = uuid() + path.extname(thumbnail.name);
-    console.log("halfway");
-
-    thumbnail.mv(
-      path.join(__dirname, "..", "uploads", fileName),
-      async (err) => {
-        if (err) {
-          return next(new HttpError("Post creation failed.", 422));
-        } else {
-          const newPost = new Post({
-            title,
-            category,
-            description,
-            thumbnail: fileName,
-            creator: req.user.id,
-          });
-          const savedPost = await newPost.save();
-          if (!savedPost) {
-            return next(new HttpError("Post could not be created.", 422));
-          }
-          console.log("hello");
-          const currentUser = await User.findById(req.user.id);
-          currentUser.posts += 1;
-          await currentUser.save();
-
-          res.status(201).json({
-            status: "success",
-            newPost,
-            message: `New post ${newPost.title} created.`,
-          });
-        }
-      }
+    const imageResult = await cloudinary.uploader.upload(
+      req.files["thumbnail"][0].path
     );
+    const newPost = new Post({
+      title,
+      category,
+      description,
+      thumbnail: imageResult.secure_url,
+      creator: req.user.id,
+    });
+    const savedPost = await newPost.save();
+    if (!savedPost) {
+      return next(new HttpError("Post could not be created.", 422));
+    }
+
+    const currentUser = await User.findById(req.user.id);
+    currentUser.posts += 1;
+    await currentUser.save();
+
+    res.status(201).json({
+      status: "success",
+      newPost,
+      message: `New post ${newPost.title} created.`,
+    });
   } catch (error) {
     return next(new HttpError("Post creation failed.", 422));
   }
@@ -129,6 +121,7 @@ const getUserPosts = async (req, res, next) => {
     const posts = await Post.find({ creator: req.params.id }).sort({
       createdAt: -1,
     });
+    // console.log(posts);
     if (!posts) {
       return next(new HttpError("No posts found.", 404));
     }
@@ -144,13 +137,11 @@ const getUserPosts = async (req, res, next) => {
 // =====================    EDIT POST
 // PATCH : api/posts/:id
 // UNPROTECTED
+
 const editPost = async (req, res, next) => {
   try {
-    let fileName;
-    let newFilename;
-    let updatedPost;
     const postId = req.params.id;
-    let { title, category, description } = req.body;
+    const { title, category, description } = req.body;
 
     if (!title || !category || !description) {
       return next(new HttpError("Fill in all fields.", 422));
@@ -158,80 +149,47 @@ const editPost = async (req, res, next) => {
 
     const oldPost = await Post.findById(postId);
 
+    if (!oldPost) {
+      return next(new HttpError("Post not found.", 404));
+    }
+
     if (req.user.id !== oldPost.creator.toString()) {
       return next(
         new HttpError("You are not authorized to edit this post.", 401)
       );
     }
 
-    if (!req.files) {
-      updatedPost = await Post.findByIdAndUpdate(
-        postId,
-        {
-          title,
-          category,
-          description,
-        },
-        { new: true }
-      );
-    } else {
-      if (!oldPost) {
-        return next(new HttpError("Post not found.", 404));
-      }
+    let updatedPostData = { title, category, description };
 
-      fs.unlink(
-        path.join(__dirname, "..", "uploads", oldPost.thumbnail),
-        async (err) => {
-          if (err) {
-            return next(new HttpError(err, 404));
-          }
-        }
-      );
-      // upload file
-      const { thumbnail } = req.files;
-
-      if (thumbnail.size > 2000000) {
-        return next(new HttpError("File size too large. Must be < 2MB", 422));
+    if (req.files && req.files.thumbnail) {
+      const { path } = req.files.thumbnail;
+      try {
+        const imageResult = await cloudinary.uploader.upload(path);
+        updatedPostData.thumbnail = imageResult.secure_url;
+      } catch (error) {
+        return next(
+          new HttpError("Failed to upload image to Cloudinary.", 500)
+        );
       }
-      fileName = thumbnail.name;
-      splittedFilename = fileName.split(".");
-      newFilename =
-        splittedFilename[0] +
-        uuid() +
-        "." +
-        splittedFilename[splittedFilename.length - 1];
-      thumbnail.mv(
-        path.join(__dirname, "..", "uploads", newFilename),
-        async (err) => {
-          if (err) {
-            return next(new HttpError(err, 404));
-          }
-        }
-      );
-      updatedPost = await Post.findByIdAndUpdate(
-        postId,
-        {
-          title,
-          category,
-          description,
-          thumbnail: newFilename,
-        },
-        { new: true }
-      );
     }
+
+    const updatedPost = await Post.findByIdAndUpdate(postId, updatedPostData, {
+      new: true,
+    });
 
     if (!updatedPost) {
       return next(new HttpError("Could not update post.", 404));
     }
+
     res.status(200).json({
       status: "success",
       updatedPost,
     });
   } catch (error) {
-    return next(new HttpError("Post not found.", 404));
+    console.error(error);
+    return next(new HttpError("Post update failed.", 500));
   }
 };
-
 // =====================    DELETE POST
 // DELETE : api/posts/:id
 // UNPROTECTED

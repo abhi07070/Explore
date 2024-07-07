@@ -142,7 +142,7 @@ const changeAvatar = async (req, res, next) => {
     );
     // console.log(imageResult.url);
 
-    user.avatar = imageResult.url;
+    user.avatar = imageResult.secure_url;
     await user.save();
 
     res.status(200).json({
@@ -159,6 +159,7 @@ const changeAvatar = async (req, res, next) => {
 // PROTECTED
 const editUser = async (req, res, next) => {
   try {
+    // console.log(req.body);
     const { name, email, currentPassword, newPassword, confirmNewPassword } =
       req.body;
 
@@ -169,25 +170,39 @@ const editUser = async (req, res, next) => {
       !newPassword ||
       !confirmNewPassword
     ) {
+      // console.log("Missing fields:", {
+      //   name,
+      //   email,
+      //   currentPassword,
+      //   newPassword,
+      //   confirmNewPassword,
+      // });
       return next(new HttpError("Fill in all fields.", 422));
     }
 
     const user = await User.findById(req.user.id);
     if (!user) {
+      console.log("User not found:", req.user.id);
       return next(new HttpError("User not found.", 404));
     }
 
     const emailExist = await User.findOne({ email });
-    if (emailExist && emailExist._id !== req.user.id) {
+    if (emailExist && emailExist._id.toString() !== req.user.id.toString()) {
+      console.log("Email already in use:", email);
       return next(new HttpError("Email already in use.", 422));
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
+      console.log("Incorrect current password:", currentPassword);
       return next(new HttpError("Incorrect password.", 422));
     }
 
     if (newPassword !== confirmNewPassword) {
+      console.log("Passwords do not match:", {
+        newPassword,
+        confirmNewPassword,
+      });
       return next(new HttpError("Passwords do not match.", 422));
     }
 
@@ -208,6 +223,7 @@ const editUser = async (req, res, next) => {
       updatedUser,
     });
   } catch (error) {
+    console.log("Error during user update:", error);
     return next(new HttpError("User edit failed.", 422));
   }
 };
