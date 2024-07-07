@@ -27,6 +27,10 @@ db.on("connected", () => {
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 
+app.use("/", (req, res) => {
+  res.send("Hello World!");
+});
+
 app.use(notFound);
 app.use(errorHandler);
 
