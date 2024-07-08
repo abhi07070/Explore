@@ -160,9 +160,11 @@ const editPost = async (req, res, next) => {
     }
 
     let updatedPostData = { title, category, description };
-
+    // console.log("req files: ", req.files);
+    // console.log("req.files.thumbnail: ", req.files.thumbnail);
     if (req.files && req.files.thumbnail) {
-      const { path } = req.files.thumbnail;
+      const { path } = req.files.thumbnail[0];
+      // console.log("path: ", path);
       try {
         const imageResult = await cloudinary.uploader.upload(path);
         updatedPostData.thumbnail = imageResult.secure_url;
@@ -206,14 +208,6 @@ const deletePost = async (req, res, next) => {
         new HttpError("You are not authorized to delete this post.", 401)
       );
     } else {
-      fs.unlink(
-        path.join(__dirname, "..", "uploads", post.thumbnail),
-        (err) => {
-          if (err) {
-            return next(new HttpError(err, 404));
-          }
-        }
-      );
       await Post.findByIdAndDelete(postId);
       const currentUser = await User.findById(req.user.id);
       if (!currentUser) {

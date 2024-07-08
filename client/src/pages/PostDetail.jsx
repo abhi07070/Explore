@@ -21,6 +21,7 @@ const PostDetail = () => {
         const response = await axios.get(
           `${process.env.REACT_APP_BASE_URL}/posts/${id}`
         );
+        // console.log(response);
         setPost(response?.data.post);
       } catch (error) {
         setError(error?.response?.data?.message);
@@ -55,10 +56,7 @@ const PostDetail = () => {
           </div>
           <h1>{post.title}</h1>
           <div className="post-detail__thumbnail">
-            <img
-              src={`${process.env.REACT_APP_ASSETS_URL}/uploads/${post.thumbnail}`}
-              alt=""
-            />
+            <img src={post.thumbnail} alt="" />
           </div>
           <p dangerouslySetInnerHTML={{ __html: post.description }}></p>
         </div>

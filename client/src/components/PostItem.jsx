@@ -14,14 +14,11 @@ const PostItem = ({
   const shortDesc =
     description.length > 145 ? description.substr(0, 145) + "..." : description;
   const postTitle = title.length > 30 ? title.substr(0, 30) + "..." : title;
-
+  console.log(thumbnail);
   return (
     <article className="post">
       <div className="post__thumbnail">
-        <img
-          src={`${process.env.REACT_APP_ASSETS_URL}/uploads/${thumbnail}`}
-          alt={postTitle}
-        />
+        <img src={thumbnail} alt={postTitle} />
       </div>
       <div className="post__content">
         <Link to={`/posts/${postId}`}>

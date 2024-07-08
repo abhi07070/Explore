@@ -76,14 +76,19 @@ const UserProfile = () => {
   const updateUserDetails = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    formData.set("name", name);
-    formData.set("email", email);
-    formData.set("currentPassword", currentPassword);
-    formData.set("newPassword", newPassword);
-    formData.set("confirmNewPassword", confirmNewPassword);
-
     try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("currentPassword", currentPassword);
+      formData.append("newPassword", newPassword);
+      formData.append("confirmNewPassword", confirmNewPassword);
+
+      // console.log(formData.get("name"));
+      // console.log(formData.get("email"));
+      // console.log(formData.get("currentPassword"));
+      // console.log(formData.get("newPassword"));
+      // console.log(formData.get("confirmNewPassword"));
       const response = await axios.patch(
         `${process.env.REACT_APP_BASE_URL}/users/edit-user`,
         formData,
@@ -97,6 +102,7 @@ const UserProfile = () => {
         navigate(`/logout`);
       }
     } catch (err) {
+      console.log("Error response:", err.response);
       setError(err.response.data.message);
     }
   };

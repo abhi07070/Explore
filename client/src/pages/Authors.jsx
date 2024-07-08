@@ -31,9 +31,7 @@ const Authors = () => {
       {authors.length > 0 ? (
         <div className="container authors__container">
           {authors.map(({ _id: id, avatar, name, posts }) => {
-            const avatarUrl = avatar
-              ? `${process.env.REACT_APP_ASSETS_URL}/uploads/${avatar}`
-              : Profile;
+            const avatarUrl = avatar ? avatar : Profile;
 
             return (
               <Link key={id} to={`/posts/users/${id}`} className="author">

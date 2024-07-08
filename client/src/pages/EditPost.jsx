@@ -91,6 +91,7 @@ const EditPost = () => {
     formData.append("description", description);
     formData.append("category", category);
     formData.append("thumbnail", thumbnail);
+
     axios
       .patch(`${process.env.REACT_APP_BASE_URL}/posts/${id}`, formData, {
         withCredentials: true,
