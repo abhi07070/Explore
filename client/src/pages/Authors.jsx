@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Profile from "../Images/profile.png";
+import Spinner from "../components/Spinner";
 
 const Authors = () => {
   const [authors, setAuthors] = useState([]);
@@ -23,7 +24,7 @@ const Authors = () => {
   }, []);
 
   if (isLoading) {
-    return <h2 className="center">Loading...</h2>;
+    return <Spinner />;
   }
 
   return (

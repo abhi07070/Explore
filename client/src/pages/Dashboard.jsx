@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { UserContext } from "../context/userContext.js";
 import axios from "axios";
 import DeletePost from "./DeletePost.jsx";
+import Spinner from "../components/Spinner.jsx";
 const Dashboard = () => {
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -41,9 +42,8 @@ const Dashboard = () => {
   }, [token]);
 
   if (isLoading) {
-    return <h2 className="center">Loading...</h2>;
+    return <Spinner />;
   }
-
   return (
     <section className="dashboard">
       {posts.length > 0 ? (

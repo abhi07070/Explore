@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import PostItem from "../components/PostItem";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import Spinner from "../components/Spinner";
 
 const CategoryPosts = () => {
   const [posts, setPosts] = useState([]);
@@ -23,7 +24,7 @@ const CategoryPosts = () => {
   }, [category]);
 
   if (isLoading) {
-    return <h2 className="center">Loading...</h2>;
+    return <Spinner />;
   }
   return (
     <section className="posts">

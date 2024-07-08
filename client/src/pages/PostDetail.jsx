@@ -5,6 +5,7 @@ import Thumbnail from "../assets/thumbnail.jpg";
 import DeletePost from "./DeletePost";
 import { UserContext } from "../context/userContext";
 import axios from "axios";
+import Spinner from "../components/Spinner";
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -32,7 +33,7 @@ const PostDetail = () => {
   }, []);
 
   if (isLoading) {
-    return <h2 className="center">Loading...</h2>;
+    return <Spinner />;
   }
 
   return (

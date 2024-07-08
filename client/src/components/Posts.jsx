@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PostItem from "./PostItem";
-import { DUMMY_POSTS } from "../data";
 import axios from "axios";
+import Spinner from "./Spinner";
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
@@ -23,7 +23,7 @@ const Posts = () => {
   }, []);
 
   if (isLoading) {
-    return <h2 className="center">Loading...</h2>;
+    return <Spinner />;
   }
   return (
     <section className="posts">
