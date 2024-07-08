@@ -14,7 +14,7 @@ const PostItem = ({
   const shortDesc =
     description.length > 145 ? description.substr(0, 145) + "..." : description;
   const postTitle = title.length > 30 ? title.substr(0, 30) + "..." : title;
-  console.log(thumbnail);
+  // console.log(thumbnail);
   return (
     <article className="post">
       <div className="post__thumbnail">
