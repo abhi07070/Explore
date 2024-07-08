@@ -58,11 +58,15 @@ const CreatePost = () => {
     "Education",
     "Entertainment",
     "Health",
+    "Fashion",
     "Music",
     "Sports",
     "Art",
+    "Science",
     "Inventment",
+    "Finance",
     "Weather",
+    "Lifestyle",
     "Travel",
     "Food",
     "Tech",
@@ -75,7 +79,6 @@ const CreatePost = () => {
     formData.append("description", description);
     formData.append("category", category);
     formData.append("thumbnail", thumbnail);
-    // formData.append("userId", currentUser._id);
 
     try {
       const response = await axios.post(

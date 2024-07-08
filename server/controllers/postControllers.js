@@ -31,6 +31,7 @@ const createPost = async (req, res, next) => {
     const imageResult = await cloudinary.uploader.upload(
       req.files["thumbnail"][0].path
     );
+
     const newPost = new Post({
       title,
       category,
@@ -38,7 +39,9 @@ const createPost = async (req, res, next) => {
       thumbnail: imageResult.secure_url,
       creator: req.user.id,
     });
+
     const savedPost = await newPost.save();
+
     if (!savedPost) {
       return next(new HttpError("Post could not be created.", 422));
     }
@@ -53,6 +56,7 @@ const createPost = async (req, res, next) => {
       message: `New post ${newPost.title} created.`,
     });
   } catch (error) {
+    console.error("Error during post creation: ", error);
     return next(new HttpError("Post creation failed.", 422));
   }
 };

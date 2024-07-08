@@ -187,6 +187,12 @@ nav {
   display: none;
 }
 
+/* OUTLET */
+
+/* .outlet__container {
+  height: calc(100vh - 5rem);
+} */
+
 /* FOOTER */
 
 footer {
