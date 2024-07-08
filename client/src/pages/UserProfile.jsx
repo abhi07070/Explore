@@ -77,27 +77,25 @@ const UserProfile = () => {
     e.preventDefault();
 
     try {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("email", email);
-      formData.append("currentPassword", currentPassword);
-      formData.append("newPassword", newPassword);
-      formData.append("confirmNewPassword", confirmNewPassword);
+      const data = {
+        name: name,
+        email: email,
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+        confirmNewPassword: confirmNewPassword,
+      };
 
-      // console.log(formData.get("name"));
-      // console.log(formData.get("email"));
-      // console.log(formData.get("currentPassword"));
-      // console.log(formData.get("newPassword"));
-      // console.log(formData.get("confirmNewPassword"));
       const response = await axios.patch(
         `${process.env.REACT_APP_BASE_URL}/users/edit-user`,
-        formData,
+        data,
         {
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }
       );
+      console.log(response.data);
       if (response.status === 200) {
         navigate(`/logout`);
       }
