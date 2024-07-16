@@ -65,14 +65,27 @@ const createPost = async (req, res, next) => {
 // GET : api/posts/
 // UNPROTECTED
 const getPosts = async (req, res, next) => {
+  const { page = 1, limit = 9 } = req.query;
+  const pageNum = parseInt(page);
+  const limitNum = parseInt(limit);
+
   try {
-    const posts = await Post.find().sort({ updatedAt: -1 });
+    const totalPosts = await Post.countDocuments();
+    const posts = await Post.find()
+      .sort({ updatedAt: -1 })
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum);
+
     if (!posts) {
       return next(new HttpError("No posts found.", 404));
     }
+
     res.status(200).json({
       status: "success",
       posts,
+      totalPosts,
+      currentPage: pageNum,
+      totalPages: Math.ceil(totalPosts / limitNum),
     });
   } catch (error) {
     return next(new HttpError("No posts found.", 404));
