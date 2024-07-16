@@ -233,6 +233,20 @@ footer {
 /* HOME */
 /* POST */
 
+.posts__search {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.posts__search-icon {
+  position: absolute;
+  right: 0.5rem;
+  cursor: pointer;
+}
+
 .posts__container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -284,6 +298,14 @@ footer {
   aspect-ratio: 1/1;
   border-radius: var(--radius-2);
   overflow: hidden;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 1rem;
 }
 
 /* POST DETAILS */
